@@ -5,4 +5,4 @@ spring:
     password: WWx2Vh4O2fUbuAEE0WafsxO3DUd7waGE
     driverClassName: org.postgresql.Driver
   jpa:
-    database-platform: org.hibernate.dialect.PostgreSQL94Dialect
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
