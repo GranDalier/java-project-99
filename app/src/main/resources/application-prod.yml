@@ -1,0 +1,8 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://dpg-cpgspv6ct0pc739vg8l0-a:5432/db99
+    username: prod
+    password: WWx2Vh4O2fUbuAEE0WafsxO3DUd7waGE
+    driverClassName: org.postgresql.Driver
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQL94Dialect
