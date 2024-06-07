@@ -1,6 +1,6 @@
-.PHONY: build, test
+.PHONY: build test
 
-.DEFAULT_GOAL = app
+.DEFAULT_GOAL := app
 
 setup:
 	./gradlew wrapper --gradle-version 8.8
@@ -21,10 +21,7 @@ install:
 dev: app
 
 test:
-	./gradlew test
-
-lint:
-	./gradlew checkstyleMain checkstyleTest
+	./gradlew test checkstyleMain checkstyleTest
 
 reload-classes:
 	./gradlew -t classes
