@@ -1,14 +1,20 @@
 package hexlet.code.app.dto.user;
 
+import jakarta.validation.constraints.Size;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+
+import org.openapitools.jackson.nullable.JsonNullable;
+
 import lombok.Getter;
 import lombok.Setter;
-import org.openapitools.jackson.nullable.JsonNullable;
 
 @Setter
 @Getter
 public class UserUpdateDTO {
+
+    private static final int PASS_MIN = 3;
+    private static final int PASS_MAX = 100;
 
     @Email(regexp = "^\\w{3,}(\\.\\w{3,})*@(\\w+\\.){1}\\w{2,4}$")
     private JsonNullable<String> email;
@@ -19,6 +25,6 @@ public class UserUpdateDTO {
     @NotBlank
     private JsonNullable<String> lastName;
 
-    @NotBlank
+    @Size(min = PASS_MIN, max = PASS_MAX)
     private JsonNullable<String> password;
 }

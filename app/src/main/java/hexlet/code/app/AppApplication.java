@@ -17,7 +17,7 @@ public class AppApplication {
     }
 
     /**
-     * Faker bean implementation.
+     * Bean Faker.
      @return Faker
      */
     @Bean

@@ -36,6 +36,7 @@ public final class UserService {
 
     public UserDTO create(UserCreateDTO userData) {
         User user = userMapper.map(userData);
+        user.setRole("USER");
         userRepository.save(user);
         return userMapper.map(user);
     }
