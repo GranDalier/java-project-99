@@ -36,7 +36,8 @@ public class SecurityConfig {
 
     /**
      * Bean SecurityFilterChain.
-     * @param http HttpSecurity
+     *
+     * @param http         HttpSecurity
      * @param introspector HandlerMappingIntrospector
      * @return SecurityFilterChain
      * @throws Exception Exception
@@ -44,12 +45,19 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, HandlerMappingIntrospector introspector)
             throws Exception {
+        String[] permitGetPatterns = new String[]{"/", "/welcome", "/index.html", "/assets/**", "/**.ico"};
+        String[] permitPostPatterns = new String[]{"/api/login", "/api/users"};
         return http
                 .csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/welcome").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/login", "/api/users").permitAll()
-                        .anyRequest().authenticated())
+                .authorizeHttpRequests(auth -> {
+                    for (var permitGet : permitGetPatterns) {
+                        auth.requestMatchers(permitGet).permitAll();
+                    }
+                    for (var permitPost : permitPostPatterns) {
+                        auth.requestMatchers(HttpMethod.POST, permitPost).permitAll();
+                    }
+                    auth.anyRequest().authenticated();
+                })
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .oauth2ResourceServer((rs) -> rs.jwt((jwt) -> jwt.decoder(jwtDecoder)))
                 .httpBasic(Customizer.withDefaults())
@@ -58,6 +66,7 @@ public class SecurityConfig {
 
     /**
      * Bean AuthenticationManager.
+     *
      * @param http HttpSecurity
      * @return AuthenticationManager
      * @throws Exception Exception
@@ -70,6 +79,7 @@ public class SecurityConfig {
 
     /**
      * Bean AuthenticationProvider.
+     *
      * @param auth AuthenticationManagerBuilder
      * @return AuthenticationProvider
      */

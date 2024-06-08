@@ -15,7 +15,7 @@ public class UserCreateDTO {
     private static final int PASS_MIN = 3;
     private static final int PASS_MAX = 100;
 
-    @Email(regexp = "^\\w{3,}(\\.\\w{3,})*@(\\w+\\.){1}\\w{2,4}$")
+    @Email(regexp = "^\\w+(\\.\\w+)*@(\\w+\\.){1}\\w{2,4}$")
     private String email;
 
     @NotBlank

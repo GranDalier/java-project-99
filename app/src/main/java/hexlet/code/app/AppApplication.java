@@ -22,8 +22,7 @@ public class AppApplication {
      */
     @Bean
     public Faker getFaker() {
-        return new Faker(
-                new Locale.Builder().setLanguageTag("en-US").build()
-        );
+        var locale = new Locale.Builder().setLanguageTag("en-US").build();
+        return new Faker(locale);
     }
 }

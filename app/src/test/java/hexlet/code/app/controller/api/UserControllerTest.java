@@ -1,4 +1,4 @@
-package hexlet.code.app.controller;
+package hexlet.code.app.controller.api;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -23,7 +23,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.ContextConfiguration;
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors
+        .JwtRequestPostProcessor;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.HashMap;
@@ -31,7 +32,6 @@ import java.util.List;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-@ContextConfiguration
 public final class UserControllerTest {
 
     private static final String URL_PATH = "/api/users";
@@ -52,14 +52,19 @@ public final class UserControllerTest {
 
     private User testUser;
 
+    private JwtRequestPostProcessor userToken;
+    private JwtRequestPostProcessor adminToken;
+
     @BeforeEach
     public void setUp() {
         this.testUser = createUser();
+        userToken = jwt().jwt(builder -> builder.subject(testUser.getEmail()));
+        adminToken = jwt().jwt(builder -> builder.subject("hexlet@example.com"));
     }
 
     @Test
     public void testIndex() throws Exception {
-        var request = get(URL_PATH).with(jwt());
+        var request = get(URL_PATH).with(userToken);
         var result = mockMvc.perform(request)
                 .andExpect(status().isOk())
                 .andReturn();
@@ -72,7 +77,7 @@ public final class UserControllerTest {
     public void testShow() throws Exception {
         userRepository.save(testUser);
 
-        var request = get(URL_PATH + "/" + testUser.getId()).with(jwt());
+        var request = get(URL_PATH + "/" + testUser.getId()).with(userToken);
         var result = mockMvc.perform(request)
                 .andExpect(status().isOk())
                 .andReturn();
@@ -111,10 +116,10 @@ public final class UserControllerTest {
         var testUser2 = createUser();
         testUser2.setPasswordDigest(null);
 
-        var request1 = post(URL_PATH).with(jwt())
+        var request1 = post(URL_PATH).with(userToken)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(om.writeValueAsString(testUser1));
-        var request2 = post(URL_PATH).with(jwt())
+        var request2 = post(URL_PATH).with(userToken)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(om.writeValueAsString(testUser2));
 
@@ -134,7 +139,7 @@ public final class UserControllerTest {
         dto.put("lastName", "newLastName");
         dto.put("password", "secret");
 
-        var request = put(URL_PATH + "/" + testUser.getId()).with(jwt())
+        var request = put(URL_PATH + "/" + testUser.getId()).with(userToken)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(om.writeValueAsString(dto));
         var result = mockMvc.perform(request)
@@ -158,7 +163,7 @@ public final class UserControllerTest {
         dto.put("firstName", "newFirstName");
         dto.put("lastName", "newLastName");
 
-        var request = put(URL_PATH + "/" + testUser.getId()).with(jwt())
+        var request = put(URL_PATH + "/" + testUser.getId()).with(userToken)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(om.writeValueAsString(dto));
         var result = mockMvc.perform(request)
@@ -182,7 +187,7 @@ public final class UserControllerTest {
     public void testDelete() throws Exception {
         userRepository.save(testUser);
 
-        var request = delete(URL_PATH + "/" + testUser.getId()).with(jwt());
+        var request = delete(URL_PATH + "/" + testUser.getId()).with(userToken);
         mockMvc.perform(request)
                 .andExpect(status().isNoContent());
 
@@ -203,6 +208,36 @@ public final class UserControllerTest {
             mockMvc.perform(req)
                     .andExpect(status().isUnauthorized());
         }
+    }
+
+    @Test
+    public void testAuthority() throws Exception {
+        userRepository.save(testUser);
+
+        var testUser2 = createUser();
+        userRepository.save(testUser2);
+        var user2Token = jwt().jwt(builder -> builder.subject(testUser2.getEmail()));
+
+        var dto = new HashMap<String, String>();
+        dto.put("firstName", "newFirstName");
+        dto.put("lastName", "newLastName");
+
+        var requestUpdate = put(URL_PATH + "/" + testUser.getId()).with(user2Token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(om.writeValueAsString(dto));
+        var requestDelete = delete(URL_PATH + "/" + testUser.getId()).with(user2Token);
+        var forbiddenRequests = List.of(requestUpdate, requestDelete);
+        for (var req : forbiddenRequests) {
+            mockMvc.perform(req)
+                    .andExpect(status().isForbidden());
+        }
+
+        mockMvc.perform(put(URL_PATH + "/" + testUser2.getId()).with(adminToken)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(om.writeValueAsString(dto)))
+                .andExpect(status().isOk());
+        mockMvc.perform(delete(URL_PATH + "/" + testUser2.getId()).with(adminToken))
+                .andExpect(status().isNoContent());
     }
 
     private User createUser() {

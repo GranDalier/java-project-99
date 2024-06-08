@@ -43,7 +43,7 @@ public final class User implements UserDetails, BaseEntity {
     @NotBlank
     private String lastName;
 
-    @Email(regexp = "^\\w{3,}(\\.\\w{3,})*@(\\w+\\.){1}\\w{2,4}$")
+    @Email(regexp = "^\\w+(\\.\\w+)*@(\\w+\\.){1}\\w{2,4}$")
     @Column(unique = true)
     private String email;
 
