@@ -27,7 +27,8 @@ public final class CustomUserDetailsService implements UserDetailsManager {
 
     @Override
     public void createUser(UserDetails userData) {
-        User user = (User) userData;
+        User user = new User();
+        user.setEmail(userData.getUsername());
         var hashedPassword = passwordEncoder.encode(userData.getPassword());
         user.setPasswordDigest(hashedPassword);
         userRepository.save(user);

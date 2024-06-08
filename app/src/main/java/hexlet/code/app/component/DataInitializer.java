@@ -2,26 +2,27 @@ package hexlet.code.app.component;
 
 import hexlet.code.app.model.User;
 
-import hexlet.code.app.service.CustomUserDetailsService;
+import hexlet.code.app.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
-import lombok.AllArgsConstructor;
-
 @Component
-@AllArgsConstructor
 public final class DataInitializer implements ApplicationRunner {
 
     @Autowired
-    private CustomUserDetailsService userDetailsService;
+    private UserRepository userRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Override
     public void run(ApplicationArguments args) {
         var userData = createAdmin();
-        userData.setRole("ADMIN");
-        userDetailsService.createUser(userData);
+
+        userRepository.save(userData);
     }
 
     private User createAdmin() {
@@ -30,7 +31,9 @@ public final class DataInitializer implements ApplicationRunner {
         user.setEmail(email);
         user.setFirstName("Tota");
         user.setLastName("Admin");
-        user.setPasswordDigest("qwerty");
+        user.setRole("ADMIN");
+        var passwordDigest = passwordEncoder.encode("qwerty");
+        user.setPasswordDigest(passwordDigest);
         return user;
     }
 }
