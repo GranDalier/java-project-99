@@ -20,33 +20,33 @@ public final class UserService {
     private UserRepository userRepository;
 
     @Autowired
-    private UserMapper userMapper;
+    private UserMapper mapper;
 
     public List<UserDTO> findAll() {
         return userRepository.findAll().stream()
-                .map(userMapper::map)
+                .map(mapper::map)
                 .toList();
     }
 
     public UserDTO findById(long id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User id " + id + " not found"));
-        return userMapper.map(user);
+        return mapper.map(user);
     }
 
     public UserDTO create(UserCreateDTO userData) {
-        User user = userMapper.map(userData);
+        User user = mapper.map(userData);
         user.setRole("USER");
         userRepository.save(user);
-        return userMapper.map(user);
+        return mapper.map(user);
     }
 
     public UserDTO update(long id, UserUpdateDTO userData) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User id " + id + " not found"));
-        userMapper.update(userData, user);
+        mapper.update(userData, user);
         userRepository.save(user);
-        return userMapper.map(user);
+        return mapper.map(user);
     }
 
     public void delete(long id) {
