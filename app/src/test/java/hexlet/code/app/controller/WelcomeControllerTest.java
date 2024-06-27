@@ -1,4 +1,4 @@
-package hexlet.code.app.controller.api;
+package hexlet.code.app.controller;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;

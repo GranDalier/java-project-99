@@ -8,6 +8,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import hexlet.code.app.util.ModelGenerator;
 import org.junit.jupiter.api.BeforeEach;
@@ -190,17 +191,19 @@ public final class UserControllerTest {
         mockMvc.perform(request)
                 .andExpect(status().isNoContent());
 
-        assertThat(userRepository.existsById(testUser1.getId())).isEqualTo(false);
+        assertFalse(userRepository.existsById(testUser1.getId()));
     }
 
     @Test
     public void testSecurity() throws Exception {
         var requestIndex = get(URL_PATH);
         var requestShow = get(URL_PATH + "/" + testUser.getId());
-        var requestShowNoUser = get(URL_PATH + "/100");
+        var requestShowNoContent = get(URL_PATH + "/100");
         var requestUpdate = put(URL_PATH + "/" + testUser.getId());
         var requestDelete = delete(URL_PATH + "/" + testUser.getId());
-        var unauthorizedRequests = List.of(requestIndex, requestShow, requestShowNoUser, requestUpdate, requestDelete);
+        var unauthorizedRequests = List.of(
+                requestIndex, requestShow, requestShowNoContent, requestUpdate, requestDelete
+        );
         for (var req : unauthorizedRequests) {
             mockMvc.perform(req)
                     .andExpect(status().isUnauthorized());
