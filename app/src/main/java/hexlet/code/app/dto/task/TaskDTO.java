@@ -3,6 +3,7 @@ package hexlet.code.app.dto.task;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.time.LocalDate;
+import java.util.Set;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -26,4 +27,7 @@ public class TaskDTO {
     private String description;
 
     private String status;
+
+    @JsonProperty("taskLabelIds")
+    private Set<Long> labelIds;
 }

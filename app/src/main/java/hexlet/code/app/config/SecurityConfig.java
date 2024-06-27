@@ -35,7 +35,15 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, HandlerMappingIntrospector introspector)
             throws Exception {
-        String[] permitGetPatterns = new String[]{"/", "/welcome", "/index.html", "/assets/**", "/**.ico"};
+        String[] permitGetPatterns = new String[]{
+            "/",
+            "/welcome",
+            "/index.html",
+            "/assets/**",
+            "/**.ico",
+            "/v3/api-docs/**",
+            "/swagger-ui/**"
+        };
         String[] permitPostPatterns = new String[]{"/api/login", "/api/users"};
         return http
                 .csrf(AbstractHttpConfigurer::disable)

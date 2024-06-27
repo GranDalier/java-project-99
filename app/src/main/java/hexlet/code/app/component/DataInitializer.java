@@ -1,10 +1,12 @@
 package hexlet.code.app.component;
 
+import hexlet.code.app.model.Label;
 import hexlet.code.app.model.TaskStatus;
 import hexlet.code.app.model.User;
-
+import hexlet.code.app.repository.LabelRepository;
 import hexlet.code.app.repository.TaskStatusRepository;
 import hexlet.code.app.repository.UserRepository;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
@@ -21,6 +23,9 @@ public final class DataInitializer implements ApplicationRunner {
     private TaskStatusRepository taskStatusRepository;
 
     @Autowired
+    private LabelRepository labelRepository;
+
+    @Autowired
     private PasswordEncoder passwordEncoder;
 
     @Override
@@ -31,6 +36,8 @@ public final class DataInitializer implements ApplicationRunner {
         createTaskStatus("ToBeFixed", "to_be_fixed");
         createTaskStatus("ToPublish", "to_publish");
         createTaskStatus("Published", "published");
+        createLabel("feature");
+        createLabel("bug");
     }
 
     private void createAdmin() {
@@ -58,5 +65,14 @@ public final class DataInitializer implements ApplicationRunner {
         taskStatus.setName(name);
         taskStatus.setSlug(slug);
         taskStatusRepository.save(taskStatus);
+    }
+
+    private void createLabel(String name) {
+        if (labelRepository.findByName(name).isPresent()) {
+            return;
+        }
+        var label = new Label();
+        label.setName(name);
+        labelRepository.save(label);
     }
 }

@@ -1,6 +1,7 @@
 package hexlet.code.app.util;
 
 import hexlet.code.app.dto.task.TaskCreateDTO;
+import hexlet.code.app.model.Label;
 import hexlet.code.app.model.Task;
 import hexlet.code.app.model.TaskStatus;
 import hexlet.code.app.model.User;
@@ -17,6 +18,8 @@ import org.springframework.stereotype.Component;
 
 import lombok.Getter;
 
+import java.util.HashSet;
+
 @Getter
 @Component
 public class ModelGenerator {
@@ -28,6 +31,7 @@ public class ModelGenerator {
     private Model<TaskStatus> taskStatusModel;
     private Model<Task> taskModel;
     private Model<TaskCreateDTO> taskCreateDTOModel;
+    private Model<Label> labelModel;
 
     @Autowired
     private Faker faker;
@@ -53,6 +57,7 @@ public class ModelGenerator {
                 .supply(Select.field(Task::getIndex), () -> faker.number().positive())
                 .supply(Select.field(Task::getName), () -> faker.name().title())
                 .supply(Select.field(Task::getDescription), () -> faker.lorem().paragraph())
+                .supply(Select.field(Task::getLabels), () -> new HashSet<>())
                 .toModel();
         taskCreateDTOModel = Instancio.of(TaskCreateDTO.class)
                 .ignore(Select.field(TaskCreateDTO::getAssigneeId))
@@ -60,6 +65,11 @@ public class ModelGenerator {
                 .supply(Select.field(TaskCreateDTO::getIndex), () -> faker.number().positive())
                 .supply(Select.field(TaskCreateDTO::getName), () -> faker.name().title())
                 .supply(Select.field(TaskCreateDTO::getDescription), () -> faker.lorem().paragraph())
+                .supply(Select.field(TaskCreateDTO::getLabelIds), () -> new HashSet<>())
+                .toModel();
+        labelModel = Instancio.of(Label.class)
+                .ignore(Select.field(Label::getId))
+                .supply(Select.field(Label::getName), () -> faker.lorem().sentence())
                 .toModel();
     }
 }

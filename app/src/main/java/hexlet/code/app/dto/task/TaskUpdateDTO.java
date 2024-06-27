@@ -9,6 +9,8 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.Set;
+
 @Getter
 @Setter
 public class TaskUpdateDTO {
@@ -26,4 +28,7 @@ public class TaskUpdateDTO {
 
     @NotNull
     private JsonNullable<String> status;
+
+    @JsonProperty("taskLabelIds")
+    private JsonNullable<Set<Long>> labelIds;
 }
