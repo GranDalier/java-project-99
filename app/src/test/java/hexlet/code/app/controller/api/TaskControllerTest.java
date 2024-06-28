@@ -114,7 +114,7 @@ public final class TaskControllerTest {
                 .andReturn();
         var body = result.getResponse().getContentAsString();
 
-        assertThatJson(body).isArray();
+        assertThatJson(body).isArray().isNotEmpty();
     }
 
     @Test
