@@ -3,7 +3,7 @@
 .DEFAULT_GOAL := app
 
 setup:
-	./gradlew wrapper --gradle-version 8.7
+	./gradlew wrapper --gradle-version 8.8
 	./gradlew build
 
 app:
