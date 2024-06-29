@@ -3,8 +3,8 @@
 .DEFAULT_GOAL := app
 
 setup:
-	gradle wrapper --gradle-version 8.7
-	gradle build
+	./gradlew wrapper --gradle-version 8.7
+	./gradlew build
 
 app:
 	./gradlew bootRun --args='--spring.profiles.active=dev'
