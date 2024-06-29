@@ -9,6 +9,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import hexlet.code.app.mapper.TaskMapper;
 import hexlet.code.app.model.Task;
 import hexlet.code.app.model.TaskStatus;
 import hexlet.code.app.model.User;
@@ -60,6 +61,9 @@ public final class TaskControllerTest {
 
     @Autowired
     private ObjectMapper om;
+
+    @Autowired
+    private TaskMapper taskMapper;
 
     private User testUser;
     private JwtRequestPostProcessor userToken;
@@ -208,5 +212,87 @@ public final class TaskControllerTest {
             mockMvc.perform(req)
                     .andExpect(status().isUnauthorized());
         }
+    }
+
+    @Test
+    public void testTaskSpecification() throws Exception {
+        taskRepository.deleteAll();
+        var labelBug = labelRepository.findByName("bug").orElseThrow();
+        var labelFeature = labelRepository.findByName("feature").orElseThrow();
+        var statusDraft = taskStatusRepository.findBySlug("draft").orElseThrow();
+        var statusToBeFixed = taskStatusRepository.findBySlug("to_be_fixed").orElseThrow();
+        var admin = userRepository.findByEmail("hexlet@example.com").orElseThrow();
+
+        var task1 = Instancio.of(modelGenerator.getTaskModel()).create();
+        task1.setTaskStatus(statusDraft);
+        task1.setLabels(Set.of(labelFeature));
+        task1.setAssignee(testUser);
+        taskRepository.save(task1);
+
+        var task2 = Instancio.of(modelGenerator.getTaskModel()).create();
+        task2.setTaskStatus(statusToBeFixed);
+        task2.setLabels(Set.of(labelBug));
+        task2.setAssignee(testUser);
+        taskRepository.save(task2);
+
+        var task3 = Instancio.of(modelGenerator.getTaskModel()).create();
+        task3.setName("TEST");
+        task3.setTaskStatus(statusDraft);
+        task3.setLabels(Set.of(labelFeature));
+        task3.setAssignee(admin);
+        taskRepository.save(task3);
+
+        String specification1 = "assigneeId=%s".formatted(testUser.getId());
+        var request1 = get(URL_PATH + "?" + specification1).with(userToken);
+        var result1 = mockMvc.perform(request1)
+                .andExpect(status().isOk())
+                .andReturn();
+        var body1 = result1.getResponse().getContentAsString();
+        var expected1 = List.of(
+            taskMapper.map(task1),
+            taskMapper.map(task2)
+        );
+        assertThatJson(body1).isEqualTo(expected1);
+
+        String specification2 = "status=%s".formatted(statusToBeFixed.getSlug());
+        var request2 = get(URL_PATH + "?" + specification2).with(userToken);
+        var result2 = mockMvc.perform(request2)
+                .andExpect(status().isOk())
+                .andReturn();
+        var body2 = result2.getResponse().getContentAsString();
+        var expected2 = List.of(
+            taskMapper.map(task2)
+        );
+        assertThatJson(body2).isEqualTo(expected2);
+
+        String specification3 = "labelId=%s".formatted(labelFeature.getId());
+        var request3 = get(URL_PATH + "?" + specification3).with(userToken);
+        var result3 = mockMvc.perform(request3)
+                .andExpect(status().isOk())
+                .andReturn();
+        var body3 = result3.getResponse().getContentAsString();
+        var expected3 = List.of(
+            taskMapper.map(task1),
+            taskMapper.map(task3)
+        );
+        assertThatJson(body3).isEqualTo(expected3);
+
+        String specification4 = "titleCont=TEST";
+        var request4 = get(URL_PATH + "?" + specification4).with(userToken);
+        var result4 = mockMvc.perform(request4)
+                .andExpect(status().isOk())
+                .andReturn();
+        var body4 = result4.getResponse().getContentAsString();
+        var expected4 = List.of(
+            taskMapper.map(task3)
+        );
+        assertThatJson(body4).isEqualTo(expected4);
+
+        var request5 = get(URL_PATH + "?" + specification1 + "&" + specification4).with(userToken);
+        var result5 = mockMvc.perform(request5)
+                .andExpect(status().isOk())
+                .andReturn();
+        var body5 = result5.getResponse().getContentAsString();
+        assertThatJson(body5).isArray().isEmpty();
     }
 }
