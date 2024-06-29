@@ -15,6 +15,6 @@ public class TaskStatusUpdateDTO {
     private JsonNullable<String> name;
 
     @NotBlank
-    @Pattern(regexp = "^[a-z]+(?:_[a-z]+)*$")
+    @Pattern(regexp = "^[a-zA-Z]+(?:_[a-zA-Z]+)*$")
     private JsonNullable<String> slug;
 }
