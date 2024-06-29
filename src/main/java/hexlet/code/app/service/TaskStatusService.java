@@ -61,7 +61,7 @@ public final class TaskStatusService {
         var name = taskStatus.getName();
         var slug = taskStatus.getSlug();
         var taskStatuses = taskStatusRepository.findAllByNameOrSlug(name, slug).stream()
-                .filter(st -> st.getId() != taskStatus.getId())
+                .filter(st -> !st.getId().equals(taskStatus.getId()))
                 .toList();
         if (!taskStatuses.isEmpty()) {
             throw new ResourceAlreadyExistsException("Task status with such name or slug already exists");
