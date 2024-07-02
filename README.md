@@ -29,7 +29,7 @@
 - **Автоматический маппинг**: Mapstruct
 - **Тесты**: JUnit 5, Mockwebserver, Datafaker
 - **Отчет о тестах**: Jacoco
-- **Линтер**: Checkstyle
+- **Проверка качества кода**: Codeclimate, Checkstyle
 
 ## Сборка и запуск
 
