@@ -3,7 +3,6 @@ package hexlet.code.service;
 import hexlet.code.dto.task.status.TaskStatusDTO;
 import hexlet.code.dto.task.status.TaskStatusCreateDTO;
 import hexlet.code.dto.task.status.TaskStatusUpdateDTO;
-import hexlet.code.exception.ResourceAlreadyExistsException;
 import hexlet.code.model.TaskStatus;
 import hexlet.code.exception.ResourceNotFoundException;
 import hexlet.code.mapper.TaskStatusMapper;
@@ -37,7 +36,6 @@ public final class TaskStatusService {
 
     public TaskStatusDTO create(TaskStatusCreateDTO taskStatusData) {
         TaskStatus taskStatus = mapper.map(taskStatusData);
-        checkIfUnique(taskStatus);
         taskStatusRepository.save(taskStatus);
         return mapper.map(taskStatus);
     }
@@ -46,7 +44,6 @@ public final class TaskStatusService {
         TaskStatus taskStatus = taskStatusRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Task status id " + id + " not found"));
         mapper.update(taskStatusData, taskStatus);
-        checkIfUnique(taskStatus);
         taskStatusRepository.save(taskStatus);
         return mapper.map(taskStatus);
     }
@@ -55,16 +52,5 @@ public final class TaskStatusService {
         TaskStatus taskStatus = taskStatusRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Task status id " + id + " not found"));
         taskStatusRepository.delete(taskStatus);
-    }
-
-    private void checkIfUnique(TaskStatus taskStatus) {
-        var name = taskStatus.getName();
-        var slug = taskStatus.getSlug();
-        var taskStatuses = taskStatusRepository.findAllByNameOrSlug(name, slug).stream()
-                .filter(st -> !st.getId().equals(taskStatus.getId()))
-                .toList();
-        if (!taskStatuses.isEmpty()) {
-            throw new ResourceAlreadyExistsException("Task status with such name or slug already exists");
-        }
     }
 }
